@@ -4,36 +4,21 @@ inputs:
   org:
     description: 'org'
     required: true
+  variables:
+    description: 'variables JSON'
+    required: false
 outputs: {}
 runs:
   using: "composite"
   steps:
-    - name: Request OIDC Token
-      id: oidc
+    - name: ezoidc
       uses: actions/github-script@v6
       env: 
         ORG: ${{ inputs.org }}
+        SCRIPT_SRC: ${{ github.action_path }}/index.js
       with:
         script: |
-          const {ORG} = process.env;
-          const audience = `https://oidc.bcj.io/${ORG}`;
-          const token = await core.getIDToken(audience);
-          const response = await fetch("https://oidc.bcj.io/api/v0/variables", {
-            method: 'POST',
-            headers: {'Authorization': `Bearer ${token}`}
-          });
-          const body = await response.json();
-          
-          if(!response.ok) {
-            return core.setFailed(body);
-          }
-          
-          for(let {key, sensitive, value, envvar} of body.variables) {
-             if(sensitive) {
-               core.setSecret(value);
-             }
+          const { SCRIPT_SRC } = process.env;
+          const action = require(SCRIPT_SRC);
 
-             core.exportVariable(envvar, value);
-
-             core.info(`Set env ${envvar} to ${key} (sensitive=${sensitive})`);
-          }
+          await action({github, context, core, fetch});
