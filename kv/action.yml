@@ -7,6 +7,9 @@ inputs:
   variables:
     description: 'variables JSON'
     required: false
+  url:
+    required: false
+    default: http://oidc.bcj.io
 outputs: {}
 runs:
   using: "composite"
@@ -16,6 +19,7 @@ runs:
       env: 
         ORG: ${{ inputs.org }}
         SCRIPT_SRC: ${{ github.action_path }}/index.js
+        URL: ${{ inputs.url }}
       with:
         script: |
           const { SCRIPT_SRC } = process.env;

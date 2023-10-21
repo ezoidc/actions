@@ -1,9 +1,9 @@
 module.exports = async ({ github, context, core, fetch }) => {
-  const { ORG } = process.env;
+  const { ORG, URL } = process.env;
   const audience = `https://oidc.bcj.io/${ORG}`;
 
   const token = await core.getIDToken(audience);
-  const response = await fetch("https://oidc.bcj.io/api/v0/variables", {
+  const response = await fetch(URL+"/api/v0/variables", {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
   });
