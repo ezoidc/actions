@@ -1,0 +1,30 @@
+name: 'ezoidc variables env'
+description: |
+  Export environment variables from ezoidc
+inputs:
+  audience: 
+    default: ""
+    description: |
+      The token's audience
+  token:
+    default: ""
+    description: |-
+      An existing token to use for authentication
+  host:
+    description: |-
+      Override the address of the server
+    required: false
+outputs: {}
+runs:
+  using: composite
+  steps:
+    - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # v7
+      env: 
+        AUDIENCE: ${{ inputs.audience }}
+        EZOIDC_TOKEN: ${{ inputs.token || env.EZOIDC_TOKEN }}
+        EZOIDC_HOST: ${{ inputs.host || env.EZOIDC_HOST }}
+        SCRIPT_PATH: ${{ github.action_path }}/script.js
+      with:
+        script: |
+          const { SCRIPT_PATH } = process.env;
+          require(SCRIPT_PATH)({github, context, core})
